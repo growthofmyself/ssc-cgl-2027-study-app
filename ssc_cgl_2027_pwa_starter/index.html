@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101827">
+<meta name="description" content="Personal SSC CGL 2027 study planner, progress tracker, quizzes and flashcards.">
+<link rel="manifest" href="manifest.webmanifest">
+<title>SSC CGL 2027 • Study Desk</title>
+<style>
+:root{--bg:#0b1220;--panel:#121d30;--panel2:#19263b;--text:#edf3ff;--muted:#9fb0c9;--accent:#76a9ff;--green:#55d6a2;--line:#293852}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+header{padding:22px max(18px,calc((100vw - 1100px)/2));background:#101a2b;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+h1{font-size:21px;margin:0}header p{margin:3px 0 0;color:var(--muted);font-size:13px}
+button,select,input{font:inherit}button{background:var(--accent);color:#081326;border:0;padding:10px 14px;border-radius:10px;font-weight:700;cursor:pointer}button.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--line)}button:disabled{opacity:.45}
+main{max-width:1100px;margin:22px auto;padding:0 16px}.tabs{display:flex;gap:8px;overflow:auto;margin-bottom:18px}.tabs button{white-space:nowrap}.tabs button.active{background:var(--green)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px}.stat{font-size:26px;font-weight:800;margin-top:5px}.muted{color:var(--muted)}.section{margin-top:18px}.section h2{font-size:18px;margin:0 0 12px}.progress{height:9px;background:#26344b;border-radius:20px;overflow:hidden;margin:9px 0}.progress span{display:block;height:100%;background:var(--green);width:0}
+.subjects{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.topic{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}.topic:last-child{border:0}.topic input{width:18px;height:18px;margin-top:3px;accent-color:var(--green)}.topic label{flex:1}.topic small{display:block;color:var(--muted)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.row>*{flex:1}input[type=text],select{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:9px;padding:10px;min-width:0} .question{font-size:19px;font-weight:700;margin:12px 0}.choices{display:grid;gap:8px}.choices button{text-align:left;background:var(--panel2);border:1px solid var(--line);color:var(--text)}.choices button.correct{border-color:var(--green)}.choices button.wrong{border-color:#ff7777}.flash{min-height:150px;display:grid;place-items:center;text-align:center;font-size:22px;padding:22px;background:var(--panel2);border-radius:14px;cursor:pointer}
+.hidden{display:none}.note{font-size:13px;color:var(--muted);margin-top:12px}.pill{font-size:12px;color:var(--green);border:1px solid #28634f;border-radius:30px;padding:3px 8px}
+footer{max-width:1100px;margin:25px auto;padding:0 16px 30px;color:var(--muted);font-size:12px}
+@media(max-width:760px){.grid{grid-template-columns:repeat(2,1fr)}.subjects{grid-template-columns:1fr}header{align-items:flex-start}}
+</style>
+</head>
+<body>
+<header><div><h1>🎓 SSC CGL 2027 — Study Desk</h1><p>Your personal preparation tracker • First working version</p></div><span class="pill">Progress saves on this device</span></header>
+<main>
+<nav class="tabs" aria-label="App sections">
+<button class="active" data-tab="dashboard">Dashboard</button><button class="secondary" data-tab="syllabus">Syllabus tracker</button><button class="secondary" data-tab="quiz">Quick quiz</button><button class="secondary" data-tab="flashcards">Flashcards</button>
+</nav>
+<section id="dashboard">
+<div class="grid">
+<div class="card"><div class="muted">Topics completed</div><div class="stat" id="doneStat">0</div></div>
+<div class="card"><div class="muted">Total topics</div><div class="stat" id="totalStat">0</div></div>
+<div class="card"><div class="muted">Syllabus progress</div><div class="stat" id="percentStat">0%</div></div>
+<div class="card"><div class="muted">Quiz attempts</div><div class="stat" id="attemptStat">0</div></div>
+</div>
+<div class="section panel"><h2>Overall preparation progress</h2><div class="progress"><span id="overallBar"></span></div><div class="muted" id="progressCaption">Start by completing your first topic.</div></div>
+<div class="section panel"><h2>Today's focus</h2><p class="muted">Choose one topic from Maths, English, Reasoning and General Awareness. Keep sessions focused: learn → recall without notes → solve questions → review mistakes.</p><button onclick="showTab('syllabus')">Open syllabus tracker</button></div>
+</section>
+<section id="syllabus" class="hidden">
+<div class="row section"><div><h2>Chapter-wise syllabus checklist</h2><p class="muted">Tick a topic only after learning it and attempting practice questions.</p></div><button class="secondary" onclick="resetProgress()">Reset progress</button></div>
+<div class="subjects" id="subjectList"></div>
+</section>
+<section id="quiz" class="hidden">
+<div class="panel"><h2>Quick practice quiz</h2><p class="muted">Starter questions only. These are practice examples, not official SSC PYQs.</p><div class="muted" id="qCount"></div><div class="question" id="question"></div><div class="choices" id="choices"></div><p id="feedback" aria-live="polite"></p><div class="row section"><button class="secondary" id="nextQ" disabled>Next question</button><span class="muted" id="score"></span></div></div>
+</section>
+<section id="flashcards" class="hidden">
+<div class="panel"><h2>Revision flashcards</h2><p class="muted">Tap the card to reveal the answer.</p><div class="flash" id="flash" role="button" tabindex="0">What is 25% of 200?</div><div class="row section"><button class="secondary" id="prevCard">Previous</button><button id="flipCard">Reveal answer</button><button class="secondary" id="nextCard">Next</button></div><p class="note" id="cardCount"></p></div>
+</section>
+</main>
+<footer>Starter app: syllabus coverage is an initial study checklist, not a claim that every official notification detail is included. Verify the applicable SSC CGL 2027 notification when released. Data is stored locally in this browser; clearing browser data may erase it. Export/backup and cross-device sync can be added in the next version.</footer>
+<script>
+const curriculum = {
+"Maths":["Number System","Simplification","HCF & LCM","Percentage","Ratio and Proportion","Average","Profit, Loss & Discount","Simple and Compound Interest","Time and Work","Pipes and Cisterns","Time, Speed and Distance","Mixture and Alligation","Algebra","Geometry","Mensuration","Trigonometry","Data Interpretation"],
+"English":["Parts of Speech","Subject-Verb Agreement","Tenses","Articles and Determiners","Prepositions","Voice","Narration","Error Detection","Sentence Improvement","Cloze Test","Reading Comprehension","Para Jumbles","Synonyms and Antonyms","Idioms and Phrases","One-word Substitution","Spelling"],
+"Reasoning":["Analogy","Classification","Series","Coding-Decoding","Blood Relations","Direction and Distance","Order and Ranking","Syllogism","Venn Diagrams","Statement and Conclusion","非-verbal Reasoning","Paper Folding and Cutting"],
+"General Awareness":["Ancient History","Medieval History","Modern History","Indian Constitution and Polity","Indian Geography","World Geography","Economics","Physics","Chemistry","Biology","Environment","Static GK","Current Affairs"]
+};
+const questions=[
+{q:"What is 25% of 200?",o:["25","40","50","75"],a:2,e:"25% = 1/4; 200 ÷ 4 = 50."},
+{q:"Choose the correctly spelled word.",o:["Accomodate","Acommodate","Accommodate","Acomodate"],a:2,e:"The correct spelling is Accommodate."},
+{q:"Find the next number: 2, 4, 8, 16, ?",o:["18","24","30","32"],a:3,e:"Each term is multiplied by 2; next is 32."},
+{q:"Which is the largest planet in our Solar System?",o:["Earth","Jupiter","Saturn","Mars"],a:1,e:"Jupiter is the largest planet."}
+];
+const cards=[["25% of 200","50"],["SI formula","SI = (Principal × Rate × Time) / 100"],["Plural of 'criterion'","Criteria"],["Fundamental Rights","Part III of the Constitution of India"],["Next term: 3, 6, 12, 24, ?","48"]];
+let state=JSON.parse(localStorage.getItem("sscStudyState")||'{"done":{},"attempts":0}');
+function save(){localStorage.setItem("sscStudyState",JSON.stringify(state));renderStats()}
+function allTopics(){return Object.entries(curriculum).flatMap(([s,ts])=>ts.map(t=>({s,t})))}
+function renderStats(){let all=allTopics(),done=all.filter(x=>state.done[x.s+"|"+x.t]).length,p=Math.round(done/all.length*100);document.getElementById("doneStat").textContent=done;document.getElementById("totalStat").textContent=all.length;document.getElementById("percentStat").textContent=p+"%";document.getElementById("attemptStat").textContent=state.attempts;document.getElementById("overallBar").style.width=p+"%";document.getElementById("progressCaption").textContent=done+" of "+all.length+" topics completed ("+p+"%)."}
+function renderSubjects(){let root=document.getElementById("subjectList");root.innerHTML="";for(let [s,ts] of Object.entries(curriculum)){let d=document.createElement("div");d.className="panel";let n=ts.filter(t=>state.done[s+"|"+t]).length;d.innerHTML=`<h2>${s}</h2><div class="muted">${n}/${ts.length} completed</div><div class="progress"><span style="width:${n/ts.length*100}%"></span></div>`;ts.forEach(t=>{let key=s+"|"+t,row=document.createElement("div");row.className="topic";let cb=document.createElement("input");cb.type="checkbox";cb.checked=!!state.done[key];cb.id=key;cb.addEventListener("change",()=>{state.done[key]=cb.checked;save();renderSubjects()});let lab=document.createElement("label");lab.htmlFor=key;lab.textContent=t;row.append(cb,lab);d.append(row)});root.append(d)}}
+function showTab(id){document.querySelectorAll("main section").forEach(x=>x.classList.toggle("hidden",x.id!==id));document.querySelectorAll(".tabs button").forEach(b=>{let active=b.dataset.tab===id;b.classList.toggle("active",active);b.classList.toggle("secondary",!active)});if(id==="syllabus")renderSubjects()}
+document.querySelectorAll(".tabs button").forEach(b=>b.addEventListener("click",()=>showTab(b.dataset.tab)));
+function resetProgress(){if(confirm("Reset all saved topic progress on this device?")){state.done={};save();renderSubjects()}}
+let qi=0,score=0,answered=false;function renderQ(){let q=questions[qi];document.getElementById("qCount").textContent=`Question ${qi+1} of ${questions.length}`;document.getElementById("question").textContent=q.q;document.getElementById("choices").innerHTML="";document.getElementById("feedback").textContent="";document.getElementById("nextQ").disabled=true;answered=false;q.o.forEach((v,i)=>{let b=document.createElement("button");b.textContent=String.fromCharCode(65+i)+". "+v;b.onclick=()=>{if(answered)return;answered=true;let ok=i===q.a;if(ok)score++;state.attempts++;save();b.classList.add(ok?"correct":"wrong");document.getElementById("feedback").textContent=(ok?"Correct. ":"Not quite. ")+q.e;document.getElementById("score").textContent=`Session score: ${score}/${qi+1}`;document.getElementById("nextQ").disabled=false};document.getElementById("choices").append(b)})}
+document.getElementById("nextQ").onclick=()=>{qi=(qi+1)%questions.length;if(qi===0)score=0;renderQ()};renderQ();
+let ci=0,flipped=false;function renderCard(){flipped=false;document.getElementById("flash").textContent=cards[ci][0];document.getElementById("cardCount").textContent=`Card ${ci+1} of ${cards.length}`;document.getElementById("flipCard").textContent="Reveal answer"}function flip(){flipped=!flipped;document.getElementById("flash").textContent=cards[ci][flipped?1:0];document.getElementById("flipCard").textContent=flipped?"Show question":"Reveal answer"}document.getElementById("flash").onclick=flip;document.getElementById("flipCard").onclick=flip;document.getElementById("prevCard").onclick=()=>{ci=(ci+cards.length-1)%cards.length;renderCard()};document.getElementById("nextCard").onclick=()=>{ci=(ci+1)%cards.length;renderCard()};renderCard();renderStats();if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js").catch(()=>{});
+</script>
+</body></html>
